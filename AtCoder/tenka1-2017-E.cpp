@@ -55,7 +55,9 @@ double findans(int mode) {
         }
         sort(AL.begin(), AL.end(), cmp2);
     }
-    while (fabs(rght - left) > EPS) {
+    int steps = 0;
+    while (steps < 100) {
+        steps++;
         cnt = 1;
 //        memset(bit, 0, sizeof bit);
         for (int i = 0; i <= N; i++)
@@ -83,7 +85,7 @@ double findans(int mode) {
             rght = mid - EPS;
         }
     }
-    return left;
+    return 0.5 * (left + rght);
 }
 int main() {
     cin.sync_with_stdio(0);
