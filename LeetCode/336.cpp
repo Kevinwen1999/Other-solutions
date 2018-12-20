@@ -61,3 +61,89 @@ public:
         return ans;
     }
 };
+// Above is hash version, below is trie version
+#define ll long long
+#define MAXNODE 50501
+#define SIGMA 30
+class Solution {
+public:
+    bool palin(string &s, int i, int j) {
+        while (i < j) {
+            if (s[i] != s[j]) return false;
+            i++, j--;
+        }
+        return true;
+    }
+    
+    int ch[MAXNODE][SIGMA];
+    int val[MAXNODE];
+    vector<int> pass[MAXNODE];
+    int sz;
+    void init_trie() {
+        sz = 1;
+        memset(ch, 0, sizeof ch);
+        memset(val, -1, sizeof val);
+    }
+    int getidx(char c) {
+        return c - 'a';
+    }
+    void add_word(string &s, int v) {
+        int u = 0;
+        for (int i = 0; i < s.size(); i++) {
+            int cc = getidx(s[i]);
+            if (!ch[u][cc]) {
+                ch[u][cc] = sz++;
+            }
+            u = ch[u][cc];
+            if (palin(s, i + 1, s.size() - 1)) 
+                pass[u].push_back(v);
+        }
+        val[u] = v;
+    }
+    void search_word(string &s, int x, vector<vector<int>>& ans){
+        int u = 0;
+        for (int i = 0; i < s.size(); i++) {
+            int cc = getidx(s[i]);
+            if (!ch[u][cc]) return;
+            u = ch[u][cc];
+            if (val[u] >= 0 && val[u] != x && palin(s, i + 1, s.size() - 1)) {
+                vector<int> t; t.push_back(x); t.push_back(val[u]);
+                ans.push_back(t);
+            }
+        }
+        for (int j : pass[u]) {
+            if (x == j || j == val[u]) continue;
+            vector<int> t; t.push_back(x); t.push_back(j);
+            ans.push_back(t);
+        }
+    }
+    
+    vector<vector<int>> palindromePairs(vector<string>& words) {
+        //cout << "test" << "\n";
+        init_trie();
+        int empty_string = -1;
+        for (int i = 0; i < words.size(); i++) {
+            if (words[i].size() == 0) empty_string = i;
+            else {
+                reverse(words[i].begin(), words[i].end());
+                add_word(words[i], i);
+                reverse(words[i].begin(), words[i].end());
+            }
+        }
+        vector<vector<int>> ans;
+        for (int i = 0; i < words.size(); i++){
+            search_word(words[i], i, ans);
+        }
+        if (empty_string != -1) {
+            for (int i = 0; i < words.size(); i++) {
+                if (i != empty_string && palin(words[i], 0, words[i].size() - 1)) {
+                    vector<int> t; t.push_back(i); t.push_back(empty_string);
+                    ans.push_back(t);
+                    t.clear();  t.push_back(empty_string); t.push_back(i);
+                    ans.push_back(t);
+                }
+            }
+        }
+        return ans;
+    }
+};
